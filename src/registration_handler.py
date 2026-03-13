@@ -7,12 +7,14 @@ from telegram.ext import ContextTypes
 
 from .constants import (
     ABOUT_TRIP,
+    ADMIN_FORWARD_MESSAGE,
     ADMIN_SEND_MESSAGE,
     AMOUNT_OF_USERS,
     BUTTONS,
     CANCEL,
     CHANGE_DATA,
     EDIT,
+    FORWARD_MESSAGE_TO_ALL,
     GET_ACTUAL_TABLE,
     OPTIONS,
     REGISTERED,
@@ -153,7 +155,45 @@ class RegistrationFlow:
 
     async def handle_admin_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE, state: str) -> bool:
         user_id = update.effective_user.id
-        if state == ADMIN_SEND_MESSAGE:
+        if state == ADMIN_FORWARD_MESSAGE:
+            # Handle cancel through callback query or text
+            if (update.message and update.message.text and update.message.text == CANCEL) or (
+                update.callback_query and update.callback_query.data == "cancel"
+            ):
+                if update.callback_query:
+                    await update.callback_query.answer()
+                await self.state_handler.transition_state(update, context, REGISTERED)
+                return True
+
+            # Get message to forward
+            message = update.message
+            all_users_id = self.user_storage.get_all_users()
+            logger.info(f"Forwarding message to {len(all_users_id)} users")
+
+            # Use copy_message_to_multiple to preserve all message properties
+            stats = await message_sender.copy_message_to_multiple(
+                bot=context.bot,
+                user_ids=all_users_id,
+                from_chat_id=message.chat_id,
+                message_id=message.message_id,
+                delay_between=0.05,
+            )
+
+            # Send stats back to admin
+            await message_sender.send_message(
+                context.bot,
+                user_id,
+                f"✅ Пересылка завершена!\n\n"
+                f"📊 Статистика:\n"
+                f"• Всего пользователей: {len(all_users_id)}\n"
+                f"• Успешно: {stats['success']}\n"
+                f"• Неудачно: {stats['failed']}",
+            )
+
+            logger.info(f"Message forwarded to users: success={stats['success']}, failed={stats['failed']}")
+            await self.state_handler.transition_state(update, context, REGISTERED)
+            return True
+        elif state == ADMIN_SEND_MESSAGE:
             # Handle cancel through callback query or text
             if (update.message and update.message.text and update.message.text == CANCEL) or (
                 update.callback_query and update.callback_query.data == CANCEL
@@ -269,6 +309,8 @@ class RegistrationFlow:
                 )
             elif user_id in ADMIN_IDS and user_input == SEND_MESSAGE_ALL_USERS:
                 await self.state_handler.transition_state(update, context, ADMIN_SEND_MESSAGE)
+            elif user_id in ADMIN_IDS and user_input == FORWARD_MESSAGE_TO_ALL:
+                await self.state_handler.transition_state(update, context, ADMIN_FORWARD_MESSAGE)
             elif user_id in ADMIN_IDS and user_input == SEND_TRIP_POLL:
                 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 

@@ -156,6 +156,7 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.LOCATION & filters.ChatType.PRIVATE, handle_message))
     application.add_handler(MessageHandler(filters.POLL & filters.ChatType.PRIVATE, handle_message))
 
+    # Callback handlers
     application.add_handler(CallbackQueryHandler(registration_flow.handle_inline_query))
 
     # Track when users block/unblock the bot

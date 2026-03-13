@@ -16,6 +16,7 @@ from telegram.ext import ContextTypes
 from src.user_storage import UserStorage
 
 from .constants import (
+    ADMIN_FORWARD_MESSAGE,
     ADMIN_SEND_MESSAGE,
     AMOUNT_OF_USERS,
     AUTO_COLLECT,
@@ -23,6 +24,7 @@ from .constants import (
     CANCEL,
     DONE,
     EDIT,
+    FORWARD_MESSAGE_TO_ALL,
     GET_ACTUAL_TABLE,
     MESSAGE,
     OPTIONS,
@@ -125,6 +127,8 @@ class StateHandler:
                 if user_id in ADMIN_IDS or user_id in TABLE_GETTERS:
                     if user_id in ADMIN_IDS and SEND_MESSAGE_ALL_USERS not in buttons:
                         buttons.append(SEND_MESSAGE_ALL_USERS)
+                    if user_id in ADMIN_IDS and FORWARD_MESSAGE_TO_ALL not in buttons:
+                        buttons.append(FORWARD_MESSAGE_TO_ALL)
                     if user_id in ADMIN_IDS and SEND_TRIP_POLL not in buttons:
                         buttons.append(SEND_TRIP_POLL)
                     if user_id in ADMIN_IDS and AMOUNT_OF_USERS not in buttons:
@@ -138,8 +142,8 @@ class StateHandler:
                         buttons.remove(GET_ACTUAL_TABLE)
             if state == EDIT:
                 buttons = [field.label for field in SURVEY_CONFIG.get_editable_fields()] + [CANCEL]
-            elif state == ADMIN_SEND_MESSAGE:
-                # For admin_send_message state, we want to show a cancel button as an inline keyboard
+            elif state in [ADMIN_SEND_MESSAGE, ADMIN_FORWARD_MESSAGE]:
+                # For admin states, we want to show a cancel button as an inline keyboard
                 keyboard = [[InlineKeyboardButton(CANCEL, callback_data="cancel")]]
                 return InlineKeyboardMarkup(keyboard)
             return ReplyKeyboardMarkup([[button] for button in buttons], resize_keyboard=True, one_time_keyboard=True)

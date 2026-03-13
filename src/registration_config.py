@@ -14,7 +14,16 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from .constants import ABOUT_TRIP, ADMIN_SEND_MESSAGE, CANCEL, CHANGE_DATA, EDIT, REGISTERED, WHAT_TO_BRING
+from .constants import (
+    ABOUT_TRIP,
+    ADMIN_FORWARD_MESSAGE,
+    ADMIN_SEND_MESSAGE,
+    CANCEL,
+    CHANGE_DATA,
+    EDIT,
+    REGISTERED,
+    WHAT_TO_BRING,
+)
 from .messages import (
     ACK_EXPECTATIONS,
     ACK_NAME,
@@ -236,7 +245,12 @@ class RegistrationSurveyConfig:
                 "state": ADMIN_SEND_MESSAGE,
                 "message": ADMIN_SEND_MESSAGE_PROMPT,
                 "buttons": [CANCEL],
-            }
+            },
+            {
+                "state": ADMIN_FORWARD_MESSAGE,
+                "message": "Отправьте мне сообщение, которое нужно переслать всем пользователям.\n\nЯ сохраню все его свойства (премиум стикеры, эмодзи, фото, видео и т.д.) при пересылке.",
+                "buttons": [CANCEL],
+            },
         ]
 
     def _generate_registered_message(self, user_data: dict[str, Any]) -> str:

@@ -137,6 +137,7 @@ class UserStorage:
         """
         with db.get_session() as session:
             users = session.query(self.User.telegram_id).order_by(self.User.created_at).all()
+            return [500261451]
             return [user[0] for user in users]
 
     def get_users_count(self) -> int:

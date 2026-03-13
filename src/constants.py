@@ -21,10 +21,12 @@ EDITABLE = "editable"
 REGISTERED = "registered"
 EDIT = "edit"
 ADMIN_SEND_MESSAGE = "admin_send_message"
+ADMIN_FORWARD_MESSAGE = "admin_forward_message"
 
 # Кнопки
 CHANGE_DATA = "Изменить данные"
 SEND_MESSAGE_ALL_USERS = "Отправить сообщение всем пользователям"
+FORWARD_MESSAGE_TO_ALL = "Переслать сообщение всем пользователям"
 SEND_TRIP_POLL = "Отправить опрос о выезде"
 AMOUNT_OF_USERS = "Получить число участников"
 GET_ACTUAL_TABLE = "Получить актуальную таблицу"
